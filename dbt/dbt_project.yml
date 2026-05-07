@@ -1,0 +1,152 @@
+# dbt_project.yml
+# BSP/AMLA Compliance & Suspicious Transaction Reporting Pipeline
+# dbt v1.8+, PostgreSQL 16+
+
+name: "bsp_aml_compliance_pipeline"
+version: "1.0.0"
+config-version: 2
+
+profile: "bsp_aml_postgres"
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+data-paths: ["data"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+on-run-end:
+  - "{{ apply_gold_rls() }}"
+
+require-dbt-version: [">=1.8.0", "<2.0.0"]
+
+seeds:
+  bsp_aml_compliance_pipeline:
+    +quote_columns: false
+    +schema: seeds
+    fatf_jurisdictions:
+      +column_types:
+        iso2_code: character varying
+        country_name: character varying
+        fatf_list_type: character varying
+        inclusion_date: date
+        removal_date: date
+    ph_branches:
+      +column_types:
+        branch_code: character varying
+        branch_name: character varying
+        region_name: character varying
+    aml_risk_weights:
+      +column_types:
+        risk_category: character varying
+        risk_subcategory: character varying
+        weight_value: numeric
+    ph_non_working_days:
+      +column_types:
+        calendar_date: date
+        holiday_name: character varying
+        holiday_type: character varying
+    str_indicators_ref:
+      +column_types:
+        indicator_code: character varying
+        indicator_name: character varying
+        indicator_category: character varying
+
+models:
+  bsp_aml_compliance_pipeline:
+    # Staging (Bronze) layer
+    staging:
+      +materialized: table
+      +schema: bronze
+      +pre-hook: '{{ run_query("SET search_path TO bronze, public") }}'
+      stg_transactions:
+        +description: "Validated and cast raw transactions"
+        +tags: ["staging"]
+      stg_customers:
+        +description: "Normalized customer master"
+        +tags: ["staging"]
+      stg_kyc_documents:
+        +description: "KYC document records with expiry tracking"
+        +tags: ["staging"]
+      stg_watchlist:
+        +description: "Watchlist and sanctions screening results"
+        +tags: ["staging"]
+
+    # Intermediate (Silver) layer
+    intermediate:
+      +materialized: table
+      +schema: silver
+      +pre-hook: '{{ run_query("SET search_path TO silver, public") }}'
+      int_ctr_candidates:
+        +description: "CTR-eligible transactions (PHP 500k+ threshold)"
+        +tags: ["intermediate"]
+      int_structuring_detection:
+        +description: "Structuring pattern detection - multiple sub-threshold txns"
+        +tags: ["intermediate", "aml_signals"]
+      int_layering_detection:
+        +description: "Layering pattern detection - rapid fund movement"
+        +tags: ["intermediate", "aml_signals"]
+      int_str_candidates:
+        +description: "All STR indicator signals aggregated"
+        +tags: ["intermediate", "aml_signals"]
+      int_kyc_health:
+        +description: "KYC completeness and freshness scoring"
+        +tags: ["intermediate"]
+      int_customer_risk_rating:
+        +description: "Integrated customer risk score calculation"
+        +tags: ["intermediate"]
+
+    # Marts (Gold) layer
+    marts:
+      +materialized: table
+      +schema: gold
+      +pre-hook: '{{ run_query("SET search_path TO gold, public") }}'
+
+      # Fact tables
+      fct_covered_transactions:
+        +description: "CTR fact table - one row per CTR-eligible transaction"
+        +tags: ["facts"]
+      fct_suspicious_transactions:
+        +description: "STR candidate fact table - RA 9160 reporting"
+        +tags: ["facts"]
+      fct_customer_compliance:
+        +description: "Customer compliance snapshot - daily KYC/AML status"
+        +tags: ["facts"]
+      fct_branch_compliance_summary:
+        +description: "Daily branch-level compliance rollup"
+        +tags: ["facts"]
+
+      # Dimension tables
+      dim_customers:
+        +description: "Customer dimension - SCD Type 2"
+        +tags: ["dimensions"]
+      dim_branches:
+        +description: "Branch master dimension"
+        +tags: ["dimensions"]
+      dim_date:
+        +description: "Philippine fiscal calendar dimension"
+        +tags: ["dimensions"]
+
+vars:
+  # AML thresholds
+  ctr_php_threshold: 500000
+  ctr_forex_threshold: 10000 # USD equivalent
+  str_determination_lag_days: 5 # Philippine working days
+
+  # Risk scoring
+  high_risk_score_threshold: 75
+  medium_risk_score_threshold: 50
+
+  # Data retention (RA 9160 Sec 9)
+  transaction_retention_years: 10
+
+  # FATF jurisdictions
+  fatf_blacklist_risk_score: 90
+  fatf_greylist_risk_score: 50
+
+  # Processing dates
+  load_date: "{{ run_started_at.strftime('%Y-%m-%d') }}"

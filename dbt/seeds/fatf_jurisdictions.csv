@@ -1,0 +1,10 @@
+iso2_code,country_name,fatf_list_type,inclusion_date,removal_date
+KP,North Korea,BLACKLIST,2016-06-24,
+IR,Iran,BLACKLIST,2015-02-28,
+SY,Syria,BLACKLIST,2013-06-20,
+BY,Belarus,GREYLIST,2020-06-25,
+JO,Jordan,GREYLIST,2018-06-22,
+LB,Lebanon,GREYLIST,2019-06-21,
+PA,Panama,GREYLIST,2015-06-26,2016-05-27
+TR,Turkey,GREYLIST,2020-06-25,
+ZA,South Africa,GREYLIST,2018-06-22,

@@ -1,0 +1,37 @@
+branch_code,branch_name,region_name,city_municipality,province
+MKT001,Manila Corporate Center,National Capital Region,Manila,Metro Manila
+MKT002,Makati Ayala Avenue Branch,National Capital Region,Makati,Metro Manila
+MKT003,Quezon City Eastwood Branch,National Capital Region,Quezon City,Metro Manila
+MKT004,Pasig Ortigas Center Branch,National Capital Region,Pasig,Metro Manila
+MKT005,Caloocan 10th Avenue Branch,National Capital Region,Caloocan,Metro Manila
+MKT006,Taguig BGC Branch,National Capital Region,Taguig,Metro Manila
+MKT007,San Juan Greenhills Branch,National Capital Region,San Juan,Metro Manila
+CEB001,Cebu IT Park Branch,Central Visayas,Cebu City,Cebu
+CEB002,Mandaue A.S. Fortuna Branch,Central Visayas,Mandaue,Cebu
+CEB003,Lapu-Lapu Mactan Branch,Central Visayas,Lapu-Lapu,Cebu
+CEB004,Bohol Panglao Branch,Central Visayas,Panglao,Bohol
+CEB005,Dumaguete Rizal Boulevard Branch,Central Visayas,Dumaguete City,Negros Oriental
+DVO001,Davao J.P. Laurel Branch,Davao Region,Davao City,Davao del Sur
+DVO002,Tagum City Branch,Davao Region,Tagum,Davao del Norte
+DVO003,Panabo Branch,Davao Region,Panabo City,Davao del Norte
+DVO004,Digos Branch,Davao Region,Digos,Davao del Sur
+CDO001,Cagayan de Oro Centrio Mall Branch,Northern Mindanao,Cagayan de Oro,Misamis Oriental
+CDO002,Iligan City Branch,Northern Mindanao,Iligan City,Lanao del Norte
+CDO003,Malaybalay City Branch,Northern Mindanao,Malaybalay,Bukidnon
+ILO001,Iloilo Diversion Road Branch,Western Visayas,Iloilo City,Iloilo
+ILO002,Bacolod Lacson Street Branch,Western Visayas,Bacolod,Negros Occidental
+ILO003,Kalibo Branch,Western Visayas,Kalibo,Aklan
+LEG001,Legazpi Albay Branch,Bicol Region,Legazpi City,Albay
+LEG002,Naga City Branch,Bicol Region,Naga City,Camarines Sur
+PUA001,Dagupan City Branch,Ilocos Region,Dagupan City,Pangasinan
+PUA002,San Fernando La Union Branch,Ilocos Region,San Fernando City,La Union
+TUG001,Tuguegarao Main Branch,Cagayan Valley,Tuguegarao,Cagayan
+TUG002,Bontoc Branch,Cordillera Administrative Region,Bontoc,Mountain Province
+BAG001,Baguio Session Road Branch,Cordillera Administrative Region,Baguio,Benguet
+VIG001,Vigan Heritage Village Branch,Ilocos Region,Vigan City,Ilocos Sur
+TAC001,Tacloban City Branch,Eastern Visayas,Tacloban City,Leyte
+ORM001,Ormoc Branch,Eastern Visayas,Ormoc City,Leyte
+LEZ001,Leyte Branch,Eastern Visayas,Baybay,Leyte
+SAM001,Samal Island Branch,Davao Region,Panabo City,Davao del Norte
+PAG001,Panglao Branch,Central Visayas,Panglao,Bohol
+ZAM001,Zamboanga City Branch,Zamboanga Peninsula,Zamboanga City,Zamboanga del Sur

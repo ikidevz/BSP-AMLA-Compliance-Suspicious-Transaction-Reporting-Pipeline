@@ -1,0 +1,156 @@
+version: 2
+
+sources:
+  - name: staging
+    description: Raw landing zone tables from Airflow data generation pipeline
+    database: aml_compliance_db
+    schema: staging
+
+    tables:
+      - name: raw_transactions
+        description: >
+          Raw transaction landing table - append-only; partitioned by transaction date.
+          Data ingested from Airflow data generation tasks. Retention: 10 years per RA 9160 Sec 9.
+          Full PII present; masked at Silver layer per RA 10173.
+        columns:
+          - name: txn_id
+            description: Unique transaction identifier
+          - name: customer_id
+            description: Customer account holder
+          - name: branch_code
+            description: Branch code where transaction occurred
+          - name: txn_date_ph
+            description: Transaction date in Philippine timezone
+          - name: txn_time_ph
+            description: Transaction time in Philippine timezone
+          - name: txn_type
+            description: Transaction type (CASH, WIRE, RTGS, PESONet, InstaPay, SWIFT)
+          - name: txn_channel
+            description: Channel (BRANCH, ATM, ONLINE, MOBILE)
+          - name: transaction_direction
+            description: DEBIT or CREDIT
+          - name: amount_local
+            description: Amount in local currency
+          - name: currency_code
+            description: ISO 4217 currency code
+          - name: amount_php
+            description: PHP equivalent for CTR threshold checking
+          - name: counterparty_name
+            description: Counterparty name - full PII
+          - name: counterparty_account
+            description: Counterparty account - PII masked
+          - name: counterparty_bank
+            description: Counterparty bank code
+          - name: purpose_code
+            description: ISO 20022 transaction purpose
+          - name: purpose_description
+            description: Human-readable purpose
+          - name: reference_number
+            description: Reference or check number
+          - name: source_system
+            description: Originating system (TEMENOS, FIS_PROFILE, etc.)
+          - name: batch_id
+            description: Airflow DAG run ID for lineage
+          - name: created_at
+            description: Timestamp when record was created
+          - name: updated_at
+            description: Timestamp when record was last updated
+
+      - name: raw_customers
+        description: >
+          Customer master with KYC profile. Upserted by customer_id.
+          Contains full PII (SSS, TIN, name) - masked at Silver layer.
+          Risk tier and PEP flags per BSP Circular 706 Part III.
+        columns:
+          - name: customer_id
+            description: Unique customer identifier
+          - name: customer_name
+            description: Full customer name - PII
+          - name: customer_type
+            description: INDIVIDUAL, CORPORATE, SOLEPROPRIETOR, NGO, GOVERNMENT
+          - name: sss_number
+            description: Social Security System number - PII
+          - name: tin_number
+            description: Tax Identification Number - PII
+          - name: philhealth_id
+            description: PhilHealth number - PII
+          - name: date_of_birth
+            description: Date of birth
+          - name: nationality
+            description: Nationality ISO code
+          - name: is_pep
+            description: Politically Exposed Person flag per BSP Circ 706
+          - name: pep_determination_date
+            description: Date PEP status was determined
+          - name: risk_tier
+            description: AML risk tier (LOW, MEDIUM, HIGH)
+          - name: account_status
+            description: ACTIVE, DORMANT, CLOSED, RESTRICTED, FROZEN
+          - name: account_opened_date
+            description: Account opening date
+          - name: branch_code
+            description: Primary branch
+          - name: customer_segment
+            description: Business segment classification
+          - name: kyc_status
+            description: KYC profile status
+          - name: kyc_last_update_date
+            description: Date KYC profile was last updated
+          - name: created_at
+            description: Record creation timestamp
+          - name: updated_at
+            description: Record update timestamp
+
+      - name: raw_kyc_documents
+        description: >
+          KYC document records - track government-issued IDs per customer.
+          Used for KYC completeness scoring and refresh monitoring per BSP Circ 706.
+        columns:
+          - name: document_id
+            description: Unique document identifier
+          - name: customer_id
+            description: Associated customer
+          - name: document_type
+            description: ID type (PASSPORT, NATIONAL_ID, DRIVERS_LICENSE, etc.)
+          - name: document_number
+            description: Document identification number
+          - name: issue_date
+            description: Document issue date
+          - name: expiry_date
+            description: Document expiration date (null = no expiry)
+          - name: issuing_country
+            description: ISO country code where document was issued
+          - name: issuing_authority
+            description: Authority that issued the document
+          - name: created_at
+            description: Record creation timestamp
+          - name: updated_at
+            description: Record update timestamp
+
+      - name: raw_watchlist_screening
+        description: >
+          Watchlist and sanctions screening results - tracks AMLC, UN, OFAC matches.
+          Used for STR indicator detection and PEP enhanced due diligence (BSP Circ 706 Part III).
+        columns:
+          - name: screening_id
+            description: Unique screening record identifier
+          - name: customer_id
+            description: Customer screened
+          - name: screening_date
+            description: Date of screening
+          - name: watchlist_source
+            description: Watchlist source (AMLC_LIST, UN_SANCTIONS, OFAC_SDN, etc.)
+          - name: match_status
+            description: NO_MATCH, POSSIBLE_MATCH, CONFIRMED_MATCH, FALSE_POSITIVE
+          - name: matched_name
+            description: Name from watchlist that matched
+          - name: match_score
+            description: Fuzzy matching score (0-100)
+          - name: match_confidence_pct
+            description: Confidence percentage
+          - name: notes
+            description: Screening notes or resolution
+          - name: created_at
+            description: Record creation timestamp
+          - name: updated_at
+            description: Record update timestamp

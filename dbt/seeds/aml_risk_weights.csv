@@ -1,0 +1,71 @@
+risk_category,risk_subcategory,weight_value,description
+GEOGRAPHY,FATF_BLACKLIST,90,Transactions to/from FATF blacklisted countries
+GEOGRAPHY,FATF_GREYLIST,60,Transactions to/from FATF greylisted countries
+GEOGRAPHY,OFFSHORE_FINANCIAL_CENTER,75,Transactions involving offshore financial centers
+GEOGRAPHY,HIGH_RISK_REGION,45,Transactions involving regions known for AML concerns
+GEOGRAPHY,MEDIUM_RISK_REGION,25,Transactions involving moderately rated jurisdictions
+GEOGRAPHY,LOW_RISK_REGION,10,Transactions with established compliance frameworks
+GEOGRAPHY,NON_COOPERATIVE_JURISDICTION,65,Transactions involving jurisdictions with limited AML oversight
+PRODUCT,CASH,45,Cash transactions - high AML risk
+PRODUCT,WIRE_TRANSFER,35,International wire transfers
+PRODUCT,REMITTANCE,38,Remittance products often abused for ML/TF
+PRODUCT,DEPOSIT,15,Regular deposit products
+PRODUCT,INVESTMENT,22,Investment products and securities
+PRODUCT,PREPAID_CARDS,30,Prepaid or stored-value instruments
+PRODUCT,LOAN,28,Loan disbursement or repayment transactions
+PRODUCT,TRADE_FINANCE,40,Trade finance and documentary credits
+PRODUCT,CRYPTOCURRENCY,55,Virtual asset transactions with higher anonymity
+PRODUCT,REAL_ESTATE,45,Real estate-related transactions
+PRODUCT,INSURANCE_PREMIUM,32,Insurance premium payments and surrender values
+PRODUCT,BANK_GUARANTEE,30,Bank guarantees and letters of credit
+PRODUCT,FOREX_EXCHANGE,27,Foreign currency exchange and remittance
+CHANNEL,BRANCH,12,In-branch transactions
+CHANNEL,ATM,10,ATM withdrawals and deposits
+CHANNEL,ONLINE,18,Online banking channels
+CHANNEL,MOBILE,15,Mobile banking channels
+CHANNEL,CALL_CENTER,20,Call center or telephone banking
+CHANNEL,CASH_AGENT,35,Cash agent or remittance partner networks
+CHANNEL,CORRESPONDENT_BANKING,50,Correspondent banking relationships
+CHANNEL,THIRD_PARTY_PAYMENT,42,Third-party payment processors and wallets
+CHANNEL,AGENT_BANKING,38,Agent banking and cash-in/cash-out services
+CUSTOMER_TYPE,CORPORATE,30,Corporate customers
+CUSTOMER_TYPE,INDIVIDUAL,25,Individual customers
+CUSTOMER_TYPE,SOLEPROPRIETOR,38,Sole proprietor businesses
+CUSTOMER_TYPE,NGO,18,Non-profit or NGO organizations
+CUSTOMER_TYPE,GOVERNMENT,10,Government agencies
+CUSTOMER_TYPE,NON_RESIDENT,45,Non-resident customers
+CUSTOMER_TYPE,FOREIGN_ENTITY,50,Foreign entity customers
+CUSTOMER_TYPE,SHELL_COMPANY,65,Shell companies with limited economic substance
+CUSTOMER_TYPE,TRUST,55,Trusts and fiduciary arrangements
+CUSTOMER_TYPE,PARTNERSHIP,28,Partnership business entities
+CUSTOMER_BEHAVIOR,SUDDEN_INCREASE,48,Sudden large increase in transaction activity
+CUSTOMER_BEHAVIOR,STRUCTURING,52,Structuring transactions just below thresholds
+CUSTOMER_BEHAVIOR,UNUSUAL_LOCATION,40,Transactions from unusual locations or jurisdictions
+CUSTOMER_BEHAVIOR,RAPID_MOVEMENTS,45,Rapid transfer of funds between multiple accounts
+CUSTOMER_BEHAVIOR,INCONSISTENT_KYC,50,Customer details inconsistent with KYC records
+CUSTOMER_BEHAVIOR,MULTIPLE_ACCOUNTS,35,Multiple accounts under same customer with overlapping activity
+CUSTOMER_BEHAVIOR,HIGH_VALUE_TRANSFER,55,Very large one-time or infrequent transfers
+TRANSACTION_AMOUNT,BELOW_THRESHOLD,10,Transactions below reporting thresholds
+TRANSACTION_AMOUNT,NEAR_THRESHOLD,30,Transactions just below monitoring/reporting thresholds
+TRANSACTION_AMOUNT,ABOVE_THRESHOLD,50,Transactions above high-value thresholds
+TRANSACTION_AMOUNT,VERY_HIGH_AMOUNT,70,Very large transactions requiring enhanced review
+ONBOARDING_RISK,HIGH_RISK_BUSINESS,48,High-risk business line or industry
+ONBOARDING_RISK,LOW_RISK_BUSINESS,8,Low-risk business type
+ONBOARDING_RISK,UNKNOWN_SOURCE_OF_FUNDS,60,Customer cannot verify source of funds
+ONBOARDING_RISK,POOR_DOCUMENTATION,55,Incomplete or poor quality onboarding documentation
+ONBOARDING_RISK,UNVERIFIED_ADDRESS,45,Address cannot be verified or is suspicious
+ONBOARDING_RISK,CASH_INTENSIVE_BUSINESS,50,Cash-intensive customers or industries
+DOCUMENTATION,INCOMPLETE_KYC,50,KYC documentation is incomplete or insufficient
+DOCUMENTATION,NO_SOURCE_OF_FUNDS,60,No verifiable source of funds provided
+DOCUMENTATION,EXPIRED_ID,35,Customer identification documents are expired
+DOCUMENTATION,POORLY_RECORDED,30,Documentation contains errors or inconsistencies
+ACTIVITY_PATTERN,INACTIVE_ACCOUNT,20,Long-dormant account reactivated with activity
+ACTIVITY_PATTERN,RAPID_REACTIVATION,42,Account opened and immediately used for high-risk transactions
+ACTIVITY_PATTERN,FREQUENT_CHANNEL_SWITCH,35,Frequent switching between channels without clear reason
+ACTIVITY_PATTERN,CONSISTENT_SUSPICIOUS,58,Repeated suspicious behavior across transactions
+PEP,PEP_CUSTOMER,80,Politically exposed person flag
+PEP,PEP_RELATIVE,65,Close relatives of PEP
+PEP,PEP_ASSOCIATE,55,Known associates of PEP
+PEP,PEP_FORMER,52,Former politically exposed persons
+PEP,PEP_DOMESTIC,70,Domestic politically exposed persons
+PEP,PEP_FOREIGN,75,Foreign politically exposed persons

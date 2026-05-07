@@ -1,0 +1,196 @@
+version: 2
+
+models:
+  - name: stg_transactions
+    description: Validated and cast raw transactions from staging layer
+    columns:
+      - name: txn_id
+        description: Unique transaction identifier
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer identifier
+        tests:
+          - not_null
+      - name: txn_date_ph
+        description: Transaction date in Philippine timezone
+        tests:
+          - not_null
+      - name: txn_amount_php
+        description: Transaction amount in PHP
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["DEBIT", "CREDIT"]
+      - name: txn_type
+        description: Type of transaction
+        tests:
+          - not_null
+      - name: txn_channel
+        description: Channel through which transaction was conducted
+      - name: counterparty_name
+        description: Counterparty masked per RA 10173
+      - name: counterparty_account
+        description: Counterparty account number masked
+      - name: currency_code
+        description: ISO 4217 currency code
+        tests:
+          - not_null
+      - name: amount_php
+        description: Amount converted to PHP equivalent for CTR threshold
+        tests:
+          - not_null
+      - name: batch_id
+        description: Airflow batch run ID for lineage
+      - name: dbt_loaded_at
+        description: Timestamp when record was loaded by dbt
+
+  - name: stg_customers
+    description: Normalized customer master with KYC profile
+    columns:
+      - name: customer_id
+        description: Unique customer identifier
+        tests:
+          - unique
+          - not_null
+      - name: customer_name
+        description: Customer full name - PII
+      - name: customer_type
+        description: Type of customer (INDIVIDUAL, CORPORATE, SOLEPROPRIETOR, NGO)
+        tests:
+          - accepted_values:
+              values:
+                [
+                  "INDIVIDUAL",
+                  "CORPORATE",
+                  "SOLEPROPRIETOR",
+                  "NGO",
+                  "GOVERNMENT",
+                ]
+      - name: sss_number
+        description: Social Security System number - full PII
+      - name: tin_number
+        description: Tax Identification Number - full PII
+      - name: philhealth_id
+        description: PhilHealth number - full PII
+      - name: birth_date
+        description: Date of birth
+      - name: nationality
+        description: Customer nationality code
+      - name: is_pep
+        description: Politically Exposed Person flag per BSP Circular 706 Part III
+        tests:
+          - not_null
+      - name: risk_tier
+        description: Customer AML risk tier (LOW, MEDIUM, HIGH)
+        tests:
+          - accepted_values:
+              values: ["LOW", "MEDIUM", "HIGH"]
+      - name: account_status
+        description: Current account status
+        tests:
+          - accepted_values:
+              values: ["ACTIVE", "DORMANT", "CLOSED", "RESTRICTED", "FROZEN"]
+      - name: account_opened_date
+        description: Date customer account was opened
+        tests:
+          - not_null
+      - name: branch_code
+        description: Primary branch code
+      - name: dbt_loaded_at
+        description: dbt load timestamp
+
+  - name: stg_kyc_documents
+    description: KYC document records with expiry date tracking
+    columns:
+      - name: document_id
+        description: Unique KYC document identifier
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Associated customer
+        tests:
+          - not_null
+      - name: document_type
+        description: Type of ID document
+        tests:
+          - accepted_values:
+              values:
+                [
+                  "PASSPORT",
+                  "NATIONAL_ID",
+                  "DRIVERS_LICENSE",
+                  "POSTAL_ID",
+                  "SENIOR_CITIZEN_ID",
+                  "PWD_ID",
+                  "BIRTH_CERTIFICATE",
+                ]
+      - name: document_number
+        description: Document identification number - masked PII
+      - name: issue_date
+        description: Date document was issued
+        tests:
+          - not_null
+      - name: expiry_date
+        description: Document expiration date
+      - name: issuing_authority
+        description: Authority that issued the document
+      - name: days_until_expiry
+        description: Calculated days until document expires
+      - name: is_expired
+        description: Flag if document is currently expired
+        tests:
+          - not_null
+      - name: dbt_loaded_at
+        description: dbt load timestamp
+
+  - name: stg_watchlist
+    description: Watchlist and sanctions screening results
+    columns:
+      - name: screening_id
+        description: Unique screening record identifier
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer screened
+        tests:
+          - not_null
+      - name: screening_date
+        description: Date of screening
+        tests:
+          - not_null
+      - name: watchlist_source
+        description: Source of watchlist
+        tests:
+          - accepted_values:
+              values:
+                [
+                  "AMLC_LIST",
+                  "UN_SANCTIONS",
+                  "OFAC_SDN",
+                  "EU_CONSOLIDATED_LIST",
+                  "INTERNAL_BLACKLIST",
+                ]
+      - name: match_status
+        description: Result of watchlist match
+        tests:
+          - accepted_values:
+              values:
+                [
+                  "NO_MATCH",
+                  "POSSIBLE_MATCH",
+                  "CONFIRMED_MATCH",
+                  "FALSE_POSITIVE",
+                ]
+      - name: matched_name
+        description: Name from watchlist that matched
+      - name: match_confidence_pct
+        description: Confidence percentage of match (0-100)
+        tests:
+          - accepted_values:
+              values: ["0-25", "26-50", "51-75", "76-100"]
+      - name: dbt_loaded_at
+        description: dbt load timestamp

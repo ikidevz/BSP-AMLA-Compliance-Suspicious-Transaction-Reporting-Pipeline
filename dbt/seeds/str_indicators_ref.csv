@@ -1,0 +1,10 @@
+indicator_code,indicator_name,indicator_category,description,base_risk_score,bsp_circular_ref
+STRUCT_01,Cash structuring below PHP 500k,STRUCTURING,Multiple sub-threshold cash transactions in 7-day window summing >= PHP 450k,70,BSP Circ 706 Annex A
+LAYER_01,Rapid in-out fund movement,LAYERING,Funds credited then debited within 48 hours net position < 10% of gross,65,BSP Circ 706 Annex A
+DORMANCY_01,Dormant account sudden large credit,DORMANCY,Account inactive for 90+ days receives credit >= PHP 100000 in single transaction,60,BSP Circ 706 Annex A
+JURIS_01,Transaction to/from FATF blacklisted jurisdiction,JURISDICTION,SWIFT/remittance to or from FATF blacklisted country - automatic high-risk flag,90,BSP Circ 706 Part IV
+JURIS_02,Transaction to/from FATF greylisted jurisdiction,JURISDICTION,SWIFT/remittance to or from FATF greylisted country - enhanced monitoring required,50,BSP Circ 706 Part IV
+ROUND_01,Round number transaction (possible smurfing),ROUND_NUMBER,Transaction amount is exact round number (500k 1M 5M) with no apparent business reason,30,BSP Circ 706 Annex A
+PEP_01,PEP-linked transaction above PHP 50000,PEP,Transaction involving politically exposed person or close associate exceeds PHP 50000,75,BSP Circ 706 Part III
+PATTERN_01,Multiple depositors to single beneficiary (smurfing),PATTERN,Three or more different depositors sending to same beneficiary account within 3 banking days,80,BSP Circ 706 Annex A
+UNUSUAL_01,Unusual cash deposit vs customer profile,PATTERN,Large cash deposit inconsistent with customer's historical transaction patterns,55,BSP Circ 706 Annex A

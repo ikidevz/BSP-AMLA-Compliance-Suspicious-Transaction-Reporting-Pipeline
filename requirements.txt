@@ -1,0 +1,6 @@
+dbt-postgres
+pymysql
+python-dotenv
+Faker
+kafka-python
+psycopg2-binary
