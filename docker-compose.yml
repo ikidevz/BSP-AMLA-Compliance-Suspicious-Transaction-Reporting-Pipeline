@@ -76,7 +76,6 @@ x-airflow-common: &airflow-common
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
     - ${AIRFLOW_PROJ_DIR:-.}/dbt:/opt/airflow/dbt
-    - dbt-packages:/opt/airflow/dbt/dbt_packages
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on: &airflow-common-depends-on
     redis:
@@ -420,7 +419,6 @@ services:
 volumes:
   postgres-db-volume:
   metabase-data:
-  dbt-packages:
 
 networks:
   aml_network:
