@@ -11,9 +11,9 @@ profile: "bsp_aml_postgres"
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
-data-paths: ["data"]
+seed-paths: ["seeds"]
 macro-paths: ["macros"]
-snapshot-paths: ["snapshots"]
+
 target-path: "target"
 clean-targets:
   - "target"

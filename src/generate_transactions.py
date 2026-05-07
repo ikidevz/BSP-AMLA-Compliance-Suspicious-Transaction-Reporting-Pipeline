@@ -3,14 +3,12 @@
 # Generates realistic banking transaction data with AML pattern injection
 
 import os
-import json
 import logging
+import random
 from datetime import datetime, timedelta
 from uuid import uuid4
 from typing import List, Dict
 
-import pandas as pd
-import numpy as np
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from faker import Faker
@@ -28,7 +26,7 @@ class TransactionGenerator:
         self.db_config = db_config
         self.fake = Faker('en_PH')
         Faker.seed(seed)
-        np.random.seed(seed)
+        random.seed(seed)
         self.ph_tz = pytz.timezone('Asia/Manila')
 
     def connect_db(self):
@@ -41,7 +39,7 @@ class TransactionGenerator:
             logger.error(f"Database connection failed: {e}")
             raise
 
-    def generate_transactions(self, volume: int = 10000, aml_injection_pct: float = 0.20) -> List[Dict]:
+    def generate_transactions(self, volume: int = 5000, aml_injection_pct: float = 0.20) -> List[Dict]:
         """
         Generate synthetic transactions
 
@@ -81,7 +79,7 @@ class TransactionGenerator:
 
         # Generate transactions with AML patterns
         for i in range(aml_count):
-            pattern_type = np.random.choice(
+            pattern_type = random.choice(
                 ['STRUCTURING', 'LAYERING', 'DORMANCY', 'ROUND_NUMBER'])
             txn = self._create_aml_pattern_transaction(
                 customers[i % len(customers)],
@@ -95,7 +93,7 @@ class TransactionGenerator:
     def _create_normal_transaction(self, customer: Dict) -> Dict:
         """Create a normal transaction"""
         txn_date = datetime.now(self.ph_tz) - \
-            timedelta(days=np.random.randint(0, 30))
+            timedelta(days=random.randint(0, 30))
 
         return {
             'txn_id': str(uuid4()),
@@ -103,16 +101,16 @@ class TransactionGenerator:
             'branch_code': customer['branch_code'],
             'txn_date_ph': txn_date.date(),
             'txn_time_ph': txn_date.time(),
-            'txn_type': np.random.choice(['CASH', 'RTGS', 'PESONet', 'InstaPay'], p=[0.40, 0.25, 0.20, 0.15]),
-            'txn_channel': np.random.choice(['BRANCH', 'ATM', 'ONLINE', 'MOBILE'], p=[0.30, 0.25, 0.35, 0.10]),
-            'transaction_direction': np.random.choice(['DEBIT', 'CREDIT'], p=[0.45, 0.55]),
-            'amount_local': round(np.random.exponential(50000, 1)[0], 2),
+            'txn_type': random.choice(['CASH', 'RTGS', 'PESONet', 'InstaPay'], p=[0.40, 0.25, 0.20, 0.15]),
+            'txn_channel': random.choice(['BRANCH', 'ATM', 'ONLINE', 'MOBILE'], p=[0.30, 0.25, 0.35, 0.10]),
+            'transaction_direction': random.choice(['DEBIT', 'CREDIT'], p=[0.45, 0.55]),
+            'amount_local': round(random.exponential(50000, 1)[0], 2),
             'currency_code': 'PHP',
-            'amount_php': round(np.random.exponential(50000, 1)[0], 2),
+            'amount_php': round(random.exponential(50000, 1)[0], 2),
             'counterparty_name': self.fake.name(),
-            'counterparty_account': f"1234{''.join(np.random.choice(list('0123456789'), 10))}",
-            'counterparty_bank': np.random.choice(['BDO', 'BPI', 'METROBANK', 'UNIONBANK', 'EASTWEST']),
-            'purpose_code': np.random.choice(['TRAD', 'FEXP', 'FDIR', 'OTHR']),
+            'counterparty_account': f"1234{''.join(random.choice('0123456789') for _ in range(10))}",
+            'counterparty_bank': random.choice(['BDO', 'BPI', 'METROBANK', 'UNIONBANK', 'EASTWEST']),
+            'purpose_code': random.choice(['TRAD', 'FEXP', 'FDIR', 'OTHR']),
             'purpose_description': self.fake.sentence(),
             'reference_number': f"REF{self.fake.uuid4()[:12]}",
             'source_system': 'TEMENOS',
@@ -122,7 +120,7 @@ class TransactionGenerator:
     def _create_aml_pattern_transaction(self, customer: Dict, pattern_type: str) -> Dict:
         """Create transactions with AML patterns"""
         txn_date = datetime.now(self.ph_tz) - \
-            timedelta(days=np.random.randint(0, 7))
+            timedelta(days=random.randint(0, 7))
 
         base_txn = {
             'txn_id': str(uuid4()),
@@ -130,12 +128,13 @@ class TransactionGenerator:
             'branch_code': customer['branch_code'],
             'txn_date_ph': txn_date.date(),
             'txn_time_ph': txn_date.time(),
-            'txn_channel': np.random.choice(['BRANCH', 'ONLINE', 'MOBILE']),
+            'txn_channel': random.choice(['BRANCH', 'ONLINE', 'MOBILE']),
             'transaction_direction': 'DEBIT',
             'currency_code': 'PHP',
+            'purpose_code': random.choice(['TRAD', 'FEXP', 'FDIR', 'OTHR']),
             'counterparty_name': self.fake.name(),
-            'counterparty_account': f"1234{''.join(np.random.choice(list('0123456789'), 10))}",
-            'counterparty_bank': np.random.choice(['BDO', 'BPI', 'METROBANK']),
+            'counterparty_account': f"1234{''.join(random.choice('0123456789') for _ in range(10))}",
+            'counterparty_bank': random.choice(['BDO', 'BPI', 'METROBANK']),
             'source_system': 'TEMENOS',
             'batch_id': os.getenv('BATCH_ID', 'manual_run'),
             'reference_number': f"REF{self.fake.uuid4()[:12]}",
@@ -145,20 +144,20 @@ class TransactionGenerator:
         if pattern_type == 'STRUCTURING':
             base_txn['txn_type'] = 'CASH'
             base_txn['amount_local'] = round(
-                np.random.uniform(450000, 499999), 2)
+                random.uniform(450000, 499999), 2)
             base_txn['amount_php'] = base_txn['amount_local']
             base_txn['purpose_description'] = 'Cash withdrawal'
 
         elif pattern_type == 'LAYERING':
-            base_txn['txn_type'] = np.random.choice(['RTGS', 'PESONet'])
+            base_txn['txn_type'] = random.choice(['RTGS', 'PESONet'])
             base_txn['amount_local'] = round(
-                np.random.uniform(100000, 500000), 2)
+                random.uniform(100000, 500000), 2)
             base_txn['amount_php'] = base_txn['amount_local']
             base_txn['purpose_description'] = 'Fund transfer'
 
         elif pattern_type == 'ROUND_NUMBER':
             base_txn['txn_type'] = 'CASH'
-            base_txn['amount_local'] = np.random.choice(
+            base_txn['amount_local'] = random.choice(
                 [500000, 1000000, 5000000])
             base_txn['amount_php'] = float(base_txn['amount_local'])
             base_txn['purpose_description'] = 'Large withdrawal'
@@ -166,7 +165,7 @@ class TransactionGenerator:
         elif pattern_type == 'DORMANCY':
             base_txn['txn_type'] = 'CASH'
             base_txn['amount_local'] = round(
-                np.random.uniform(100000, 500000), 2)
+                random.uniform(100000, 500000), 2)
             base_txn['amount_php'] = base_txn['amount_local']
             base_txn['purpose_description'] = 'Dormant account activity'
 
@@ -195,7 +194,6 @@ class TransactionGenerator:
             )
             ON CONFLICT DO NOTHING
         """
-
         try:
             cursor.executemany(insert_sql, transactions)
             conn.commit()

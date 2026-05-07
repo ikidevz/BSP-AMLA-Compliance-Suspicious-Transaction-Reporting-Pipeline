@@ -34,7 +34,6 @@ db_config = {
 }
 
 DBT_ENV = {
-    **os.environ,
     "POSTGRES_HOST":     os.getenv("DBT_POSTGRES_HOST",     "postgres"),
     "POSTGRES_PORT":     os.getenv("DBT_POSTGRES_PORT",     "5432"),
     "POSTGRES_DB":       os.getenv("DBT_POSTGRES_DBNAME",  "aml_compliance_db"),
@@ -44,22 +43,25 @@ DBT_ENV = {
 DBT_DIR = "/opt/airflow/dbt"
 
 
-def generate_transactions_task(**context):
+def generate_transactions_task():
     """Generate synthetic transactions"""
 
-    volume = int(os.getenv('SYNTHETIC_DATA_VOLUME_TXN', 10000))
+    volume = int(os.getenv('SYNTHETIC_DATA_VOLUME_TXN', 5000))
     aml_injection_pct = float(
         os.getenv('SYNTHETIC_DATA_AML_INJECTION_PCT', 0.20))
 
     generator = TransactionGenerator(
-        db_config, seed=hash(context['execution_date']))
+        db_config,
+        seed=42
+    )
+
     transactions = generator.generate_transactions(volume, aml_injection_pct)
     rows_inserted = generator.insert_transactions(transactions)
 
     return {'rows_inserted': rows_inserted}
 
 
-def generate_customers_task(**context):
+def generate_customers_task():
     """Generate/refresh synthetic customers"""
     volume = int(os.getenv('SYNTHETIC_DATA_VOLUME_CUSTOMERS', 500))
 
@@ -70,7 +72,7 @@ def generate_customers_task(**context):
     return {'rows_inserted': rows_inserted}
 
 
-def generate_kyc_task(**context):
+def generate_kyc_task():
     """Generate KYC documents"""
 
     generator = KYCGenerator(db_config, seed=42)
@@ -115,12 +117,11 @@ def aml_compliance_pipeline():
     dbt_seed = BashOperator(
         task_id='dbt_seed',
         bash_command=f'''
-            cd {DBT_DIR} && \
-            dbt seed \
-                --profiles-dir . \
-                --project-dir . \
-                --target dev
-        ''',
+        cd {DBT_DIR} && \
+        dbt seed \
+            --profiles-dir . \
+            --project-dir . \
+            --target dev''',
         env=DBT_ENV,
     )
 
@@ -154,8 +155,8 @@ def aml_compliance_pipeline():
         bash_command='echo "AML Compliance Pipeline execution completed successfully at $(date)"',
     )
 
-    [generate_txn, generate_cust,
-        generate_kyc] >> dbt_init >> dbt_seed >> dbt_run >> dbt_test >> mark_complete
+    generate_cust >> [generate_txn,
+                      generate_kyc] >> dbt_init >> dbt_seed >> dbt_run >> dbt_test >> mark_complete
 
 
 aml_compliance_pipeline()

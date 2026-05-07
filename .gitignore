@@ -11,3 +11,5 @@ dbt/logs/
 dbt/.user.yml
 dbt/package-lock.yml
 dbt/data/
+
+.vscode/
