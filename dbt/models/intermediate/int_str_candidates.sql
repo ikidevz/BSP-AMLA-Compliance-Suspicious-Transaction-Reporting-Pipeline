@@ -61,7 +61,7 @@ fatf_signals AS (
     FROM {{ ref('stg_transactions') }} t
     JOIN {{ ref('stg_customers') }} c
         ON t.customer_id = c.customer_id
-    LEFT JOIN {{ source('seeds', 'fatf_jurisdictions') }} fj
+    LEFT JOIN {{ ref('fatf_jurisdictions') }} fj
         ON UPPER(t.counterparty_bank) LIKE '%' || fj.iso2_code || '%'
         OR UPPER(t.purpose_description) LIKE '%' || fj.country_name || '%'
     WHERE fj.iso2_code IS NOT NULL

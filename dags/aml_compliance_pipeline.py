@@ -34,6 +34,7 @@ db_config = {
 }
 
 DBT_ENV = {
+    "PATH": "/home/airflow/.local/bin:/usr/local/bin:/usr/bin:/bin",
     "POSTGRES_HOST":     os.getenv("DBT_POSTGRES_HOST",     "postgres"),
     "POSTGRES_PORT":     os.getenv("DBT_POSTGRES_PORT",     "5432"),
     "POSTGRES_DB":       os.getenv("DBT_POSTGRES_DBNAME",  "aml_compliance_db"),
@@ -116,37 +117,40 @@ def aml_compliance_pipeline():
 
     dbt_seed = BashOperator(
         task_id='dbt_seed',
-        bash_command=f'''
+        bash_command=f"""
         cd {DBT_DIR} && \
         dbt seed \
             --profiles-dir . \
             --project-dir . \
-            --target dev''',
+            --target dev \
+            --no-partial-parse
+        """,
         env=DBT_ENV,
     )
 
     dbt_run = BashOperator(
         task_id='dbt_run',
-        bash_command=f'''
-            cd {DBT_DIR} && \
-            dbt run \
-                --profiles-dir . \
-                --project-dir . \
-                --target dev \
-                --select bronze silver gold
-        ''',
+        bash_command=f"""
+        cd {DBT_DIR} && \
+        dbt run \
+            --profiles-dir . \
+            --project-dir . \
+            --target dev \
+            --select bronze silver gold \
+            --no-partial-parse
+    """,
         env=DBT_ENV,
     )
 
     dbt_test = BashOperator(
         task_id='dbt_test',
-        bash_command=f'''
+        bash_command=f"""
             cd {DBT_DIR} && \
             dbt test \
                 --profiles-dir . \
                 --project-dir . \
                 --target dev
-        ''',
+        """,
         env=DBT_ENV,
     )
 
