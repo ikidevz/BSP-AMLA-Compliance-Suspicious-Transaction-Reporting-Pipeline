@@ -47,6 +47,7 @@ ctr_enriched AS (
         cc.amount_php,
         cc.transaction_direction,
         cc.ctr_type,
+        cc.ctr_amount_php,
         cc.txn_channel,
 
         -- BSP Circular 706: CTR must be filed within 1 PH working day

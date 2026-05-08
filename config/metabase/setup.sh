@@ -71,7 +71,7 @@ curl -sf --max-time 30 -X POST "$METABASE_URL/api/database" \
     \"details\": {
       \"host\": \"${MB_DB_HOST:-postgres}\",
       \"port\": ${MB_DB_PORT:-5432},
-      \"dbname\": \"${MB_DB_DBNAME:-metabase_db}\",
+      \"dbname\": \"aml_compliance_db\",
       \"user\": \"${MB_DB_USER:-metabase_amlc_user}\",
       \"password\": \"${MB_DB_PASS:-metabase_amlc_password}\",
       \"schema-filters-type\": \"inclusion\",

@@ -2,7 +2,9 @@
 -- Create PostgreSQL roles for BSP/AMLA compliance pipeline
 -- Principle of least privilege per RA 10173 data governance
 
--- Roles are global to PostgreSQL instance, no need to connect to specific database
+-- ============================================================
+-- SECTION 1: ROLE CREATION
+-- ============================================================
 
 DO $$
 BEGIN
@@ -16,7 +18,7 @@ BEGIN
             NOCREATEROLE;
     END IF;
 
-    -- Read-only role for Metabase (gold schema only, masked data)
+    -- Read-only role for Metabase (gold + public schema only, masked data)
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'metabase_amlc_user') THEN
         CREATE ROLE metabase_amlc_user WITH
             LOGIN
@@ -46,7 +48,7 @@ BEGIN
             NOCREATEROLE;
     END IF;
 
-    -- Superuser for administrative tasks (limited use)
+    -- Admin role (limited superuser — avoid in prod, use explicit grants instead)
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'admin_user') THEN
         CREATE ROLE admin_user WITH
             LOGIN
@@ -56,16 +58,28 @@ BEGIN
 END
 $$;
 
+
+-- ============================================================
+-- SECTION 2: DATABASE CONNECTION GRANTS
+-- ============================================================
+
 GRANT CONNECT ON DATABASE aml_compliance_db TO aml_pipeline;
 GRANT CONNECT ON DATABASE aml_compliance_db TO airflow_amlc_user;
-GRANT CONNECT ON DATABASE airflow_db TO airflow_amlc_user;
-GRANT CONNECT ON DATABASE metabase_db TO metabase_amlc_user;
+GRANT CONNECT ON DATABASE aml_compliance_db TO metabase_amlc_user;
 GRANT CONNECT ON DATABASE aml_compliance_db TO audit_logger;
 
--- search_path assignments (ALTER ROLE is idempotent natively)
-ALTER ROLE aml_pipeline  SET search_path = staging, bronze, silver, gold, public;
-ALTER ROLE metabase_amlc_user   SET search_path = gold, public;
+GRANT CONNECT ON DATABASE airflow_db  TO airflow_amlc_user;
+GRANT CONNECT ON DATABASE metabase_db TO metabase_amlc_user;
+
+
+-- ============================================================
+-- SECTION 3: SEARCH PATH ASSIGNMENTS
+-- ============================================================
+
+ALTER ROLE aml_pipeline       SET search_path = staging, bronze, silver, gold, public;
 ALTER ROLE airflow_amlc_user  SET search_path = staging, bronze, silver, gold, public;
-ALTER ROLE audit_logger  SET search_path = audit, public;
+ALTER ROLE metabase_amlc_user SET search_path = gold, public;
+ALTER ROLE audit_logger       SET search_path = audit, public;
+
 
 \echo 'Roles created successfully'

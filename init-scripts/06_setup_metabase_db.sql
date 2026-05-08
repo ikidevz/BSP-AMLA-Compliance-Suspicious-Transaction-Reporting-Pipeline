@@ -15,8 +15,6 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO meta
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON SEQUENCES TO metabase_amlc_user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON FUNCTIONS TO metabase_amlc_user;
 
--- Grant connection privileges
-GRANT CONNECT ON DATABASE metabase_db TO metabase_amlc_user;
 
 -- Ensure metabase_amlc_user can query existing tables
 GRANT USAGE ON SCHEMA public TO metabase_amlc_user;
