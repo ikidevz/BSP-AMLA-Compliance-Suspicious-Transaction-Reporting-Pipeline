@@ -54,7 +54,7 @@ scd_customers AS (
             ELSE NULL
         END                                         AS tin_number,
 
-        c.birth_date,
+        c.date_of_birth,
         c.nationality,
         c.is_pep,
         c.pep_determination_date,

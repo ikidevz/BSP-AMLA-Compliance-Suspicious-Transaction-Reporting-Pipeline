@@ -7,11 +7,11 @@
     materialized='table',
     schema='gold',
     post_hook=[
-        "CREATE INDEX IF NOT EXISTS idx_fct_ctr_customer       ON {{ this }}(customer_id)",
-        "CREATE INDEX IF NOT EXISTS idx_fct_ctr_date           ON {{ this }}(txn_date_ph DESC)",
-        "CREATE INDEX IF NOT EXISTS idx_fct_ctr_filing_status  ON {{ this }}(filing_status) WHERE filing_status != 'FILED'",
-        "CREATE INDEX IF NOT EXISTS idx_fct_ctr_branch         ON {{ this }}(branch_code)",
-        "CREATE INDEX IF NOT EXISTS idx_fct_ctr_amount         ON {{ this }}(amount_php DESC) WHERE amount_php >= 500000"
+        "CREATE INDEX IF NOT EXISTS idx_fct_branch_customer      ON {{ this }}(customer_id)",
+        "CREATE INDEX IF NOT EXISTS idx_fct_branch_date          ON {{ this }}(txn_date_ph DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_fct_branch_filing_status ON {{ this }}(filing_status) WHERE filing_status != 'FILED'",
+        "CREATE INDEX IF NOT EXISTS idx_fct_branch_branch        ON {{ this }}(branch_code)",
+        "CREATE INDEX IF NOT EXISTS idx_fct_branch_amount        ON {{ this }}(amount_php DESC) WHERE amount_php >= 500000"
     ]
 ) }}
 

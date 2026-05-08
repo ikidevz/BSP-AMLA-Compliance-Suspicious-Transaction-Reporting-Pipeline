@@ -9,7 +9,7 @@
     indexes=[
         {'columns': ['customer_id']},
         {'columns': ['str_determination_ts']},
-        {'columns': ['str_filing_deadline']},
+        {'columns': ['txn_date_ph']},
     ]
 ) }}
 

@@ -76,7 +76,7 @@ models:
         description: Tax Identification Number - full PII
       - name: philhealth_id
         description: PhilHealth number - full PII
-      - name: birth_date
+      - name: date_of_birth
         description: Date of birth
       - name: nationality
         description: Customer nationality code

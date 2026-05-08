@@ -26,7 +26,7 @@ SELECT
         THEN '***' || RIGHT(tin_number, 4)
         ELSE tin_number
     END AS tin_number,
-    birth_date,
+    date_of_birth,
     nationality,
     is_pep,
     pep_determination_date,
@@ -47,4 +47,4 @@ SELECT
     valid_to,
     is_current,
     dbt_loaded_at
-FROM {{ ref('dim_customers') }};
+FROM {{ ref('dim_customers') }}

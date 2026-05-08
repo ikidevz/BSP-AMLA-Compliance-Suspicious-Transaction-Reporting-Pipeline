@@ -40,7 +40,7 @@ txn_window_7d AS (
             ORDER BY t1.txn_date_ph
             RANGE BETWEEN INTERVAL '7 days' PRECEDING AND CURRENT ROW
         ) AS observation_window_start_date
-    FROM transactions
+    FROM transactions t1
     WHERE t1.txn_type = 'CASH'
       AND t1.amount_php > 0
       AND t1.transaction_direction = 'DEBIT'  -- Withdrawals are typical structuring pattern

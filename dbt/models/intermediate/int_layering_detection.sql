@@ -8,7 +8,7 @@
     schema='silver',
     indexes=[
         {'columns': ['customer_id']},
-        {'columns': ['observation_date']},
+        {'columns': ['txn_date_ph']},
     ]
 ) }}
 
@@ -16,46 +16,63 @@ WITH transactions AS (
     SELECT * FROM {{ ref('stg_transactions') }}
 ),
 
+-- Pre-compute daily counts to avoid nested aggregate
+daily_counts AS (
+    SELECT
+        customer_id,
+        txn_date_ph,
+        COUNT(*) AS daily_txn_count
+    FROM transactions
+    WHERE amount_php > 0
+    GROUP BY customer_id, txn_date_ph
+),
+
 -- 48-hour observation window
 customer_daily_txn AS (
     SELECT
-        txn_id,
-        customer_id,
-        branch_code,
-        txn_date_ph,
-        txn_ts_ph,
-        amount_php,
-        transaction_direction,
-        purpose_description,
-        SUM(CASE WHEN transaction_direction = 'CREDIT' THEN amount_php ELSE 0 END) OVER (
-            PARTITION BY customer_id
-            ORDER BY txn_date_ph
+        t.txn_id,
+        t.customer_id,
+        t.branch_code,
+        t.txn_date_ph,
+        t.txn_ts_ph,
+        t.amount_php,
+        t.transaction_direction,
+        t.purpose_description,
+        SUM(CASE WHEN t.transaction_direction = 'CREDIT' THEN t.amount_php ELSE 0 END) OVER (
+            PARTITION BY t.customer_id
+            ORDER BY t.txn_date_ph
             RANGE BETWEEN INTERVAL '2 days' PRECEDING AND CURRENT ROW
         ) AS amount_in_48h,
-        SUM(CASE WHEN transaction_direction = 'DEBIT' THEN amount_php ELSE 0 END) OVER (
-            PARTITION BY customer_id
-            ORDER BY txn_date_ph
+        SUM(CASE WHEN t.transaction_direction = 'DEBIT' THEN t.amount_php ELSE 0 END) OVER (
+            PARTITION BY t.customer_id
+            ORDER BY t.txn_date_ph
             RANGE BETWEEN INTERVAL '2 days' PRECEDING AND CURRENT ROW
         ) AS amount_out_48h,
-        (SUM(amount_php) OVER (
-            PARTITION BY customer_id
-            ORDER BY txn_date_ph
+        SUM(t.amount_php) OVER (
+            PARTITION BY t.customer_id
+            ORDER BY t.txn_date_ph
             RANGE BETWEEN INTERVAL '2 days' PRECEDING AND CURRENT ROW
-        )) AS net_amount_48h,
+        ) AS net_amount_48h,
         COUNT(*) OVER (
-            PARTITION BY customer_id
-            ORDER BY txn_date_ph
+            PARTITION BY t.customer_id
+            ORDER BY t.txn_date_ph
             RANGE BETWEEN INTERVAL '2 days' PRECEDING AND CURRENT ROW
         ) AS txn_count_48h,
-        -- Customer 90-day transaction velocity
-        AVG(COUNT(*)) OVER (
-            PARTITION BY customer_id
-            ORDER BY txn_date_ph
+
+        -- ✅ AVG over pre-computed daily counts, no nested aggregate
+        AVG(dc.daily_txn_count) OVER (
+            PARTITION BY t.customer_id
+            ORDER BY t.txn_date_ph
             RANGE BETWEEN INTERVAL '90 days' PRECEDING AND CURRENT ROW
         ) AS avg_daily_velocity_90d
-    FROM transactions
-    WHERE amount_php > 0
+
+    FROM transactions t
+    JOIN daily_counts dc
+        ON t.customer_id = dc.customer_id
+        AND t.txn_date_ph = dc.txn_date_ph
+    WHERE t.amount_php > 0
 ),
+
 
 -- Detect layering: in-out movement with minimal net position
 layering_txns AS (
