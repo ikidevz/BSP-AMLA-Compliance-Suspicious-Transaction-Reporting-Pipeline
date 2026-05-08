@@ -54,7 +54,7 @@ kyc_scored AS (
         is_pep,
         kyc_last_update_date,
         has_primary_id,
-        has_address_verification
+        has_address_verification,
         has_valid_primary_id, 
         valid_docs_count,
         expired_docs_count,
