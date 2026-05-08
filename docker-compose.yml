@@ -75,6 +75,7 @@ x-airflow-common: &airflow-common
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
     - ${AIRFLOW_PROJ_DIR:-.}/dbt:/opt/airflow/dbt
+    - ${AIRFLOW_PROJ_DIR:-.}/reports:/reports
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on: &airflow-common-depends-on
     redis:
@@ -341,6 +342,12 @@ services:
         echo "Creating missing opt dirs if missing:"
         echo
         mkdir -v -p /opt/airflow/{logs,dags,plugins,config}
+        echo
+        echo "Creating and setting permissions for /reports:"
+        echo
+        mkdir -v -p /reports
+        chown -R "${AIRFLOW_UID}:0" /reports
+        chmod -R 775 /reports
         echo
         echo "Airflow version:"
         /entrypoint airflow version

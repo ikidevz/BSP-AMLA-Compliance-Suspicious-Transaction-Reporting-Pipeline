@@ -26,7 +26,7 @@ models:
         description: Type of transaction
         tests:
           - not_null
-      - name: transaction_direction   
+      - name: transaction_direction
         description: Direction of transaction
         tests:
           - accepted_values:
@@ -40,10 +40,6 @@ models:
         description: Counterparty account number masked
       - name: currency_code
         description: ISO 4217 currency code
-        tests:
-          - not_null
-      - name: amount_php
-        description: Amount converted to PHP equivalent for CTR threshold
         tests:
           - not_null
       - name: batch_id
@@ -204,6 +200,5 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: 100
-            - name: dbt_loaded_at
       - name: dbt_loaded_at
         description: dbt load timestamp

@@ -87,8 +87,7 @@ def generate_kyc_task():
     dag_id='aml_compliance_pipeline',
     default_args=default_args,
     description='Daily BSP/AMLA compliance and STR reporting pipeline',
-    # schedule='0 2 * * 1-6',  # 2:00 AM PHT, Mon-Sat (UTC+8: 18:00 UTC prev day)
-    schedule=None,
+    schedule='0 2 * * 1-6',  # 2:00 AM PHT, Mon-Sat (UTC+8: 18:00 UTC prev day)
     start_date=pendulum.datetime(2025, 1, 1, tz='Asia/Manila'),
     catchup=False,
     tags=['aml', 'compliance', 'bsp', 'daily'],

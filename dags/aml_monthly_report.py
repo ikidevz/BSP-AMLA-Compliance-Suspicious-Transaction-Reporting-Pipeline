@@ -1,7 +1,4 @@
 # dags/aml_monthly_report.py
-# BSP/AMLA Monthly Compliance Report Generation
-# Generates AMLC ERS formatted CTR and STR reports
-# Schedule: 6:00 AM PHT on 1st banking day of month
 
 import csv
 import pendulum
@@ -18,10 +15,10 @@ from src.utils.db import get_db_pool
 def export_ctr_report(**context):
     """Export CTR report in AMLC ERS format"""
 
-    execution_date = context['execution_date']
-    report_month = execution_date.strftime('%Y%m')
-    report_dir = Path(
-        f'/reports/{execution_date.year}/{execution_date.month:02d}')
+    # Airflow 3.x: use data_interval_start (equivalent to old execution_date)
+    report_dt = context['data_interval_start']
+    report_month = report_dt.strftime('%Y%m')
+    report_dir = Path(f'/reports/{report_dt.year}/{report_dt.month:02d}')
     report_dir.mkdir(parents=True, exist_ok=True)
 
     output_file = report_dir / f'ctr_report_{report_month}.csv'
@@ -45,15 +42,14 @@ def export_ctr_report(**context):
 
     with pool.get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute(query, (execution_date.year, execution_date.month))
+        cursor.execute(query, (report_dt.year, report_dt.month))
         rows = cursor.fetchall()
 
         with open(output_file, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['CTR ID', 'Customer ID', 'Branch', 'Txn Date',
                             'Amount (PHP)', 'Type', 'Status', 'Filed Date'])
-            for row in rows:
-                writer.writerow(row)
+            writer.writerows(rows)
 
         cursor.close()
 
@@ -64,10 +60,9 @@ def export_ctr_report(**context):
 def export_str_report(**context):
     """Export STR report in AMLC ERS format"""
 
-    execution_date = context['execution_date']
-    report_month = execution_date.strftime('%Y%m')
-    report_dir = Path(
-        f'/reports/{execution_date.year}/{execution_date.month:02d}')
+    report_dt = context['data_interval_start']
+    report_month = report_dt.strftime('%Y%m')
+    report_dir = Path(f'/reports/{report_dt.year}/{report_dt.month:02d}')
     report_dir.mkdir(parents=True, exist_ok=True)
 
     output_file = report_dir / f'str_report_{report_month}.csv'
@@ -91,15 +86,14 @@ def export_str_report(**context):
 
     with pool.get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute(query, (execution_date.year, execution_date.month))
+        cursor.execute(query, (report_dt.year, report_dt.month))
         rows = cursor.fetchall()
 
         with open(output_file, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['STR ID', 'Customer ID', 'Branch', 'Determination Date',
                             'Risk Score', 'Indicators', 'Status', 'Urgency'])
-            for row in rows:
-                writer.writerow(row)
+            writer.writerows(rows)
 
         cursor.close()
 
@@ -120,7 +114,7 @@ default_args = {
     dag_id='aml_monthly_report',
     default_args=default_args,
     description='Monthly BSP/AMLC compliance report generation',
-    schedule='0 6 1 * *',  # 6:00 AM on 1st of month
+    schedule='0 6 1 * *',
     start_date=pendulum.datetime(2025, 1, 1, tz='Asia/Manila'),
     catchup=False,
     tags=['aml', 'compliance', 'bsp', 'reporting', 'monthly'],
@@ -137,13 +131,14 @@ def aml_monthly_report():
         python_callable=export_str_report,
     )
 
+    # Fixed Jinja template — data_interval_start replaces execution_date
     summary_report = BashOperator(
         task_id='generate_summary_report',
         bash_command='''
             echo "Monthly Compliance Report Summary"
-            echo "Report Date: {{ execution_date }}"
+            echo "Report Date: {{ data_interval_start }}"
             echo "Generated: $(date)"
-            echo "Reports saved to /reports/{{ execution_date.year }}/{{ execution_date.month | int:02d }}/"
+            echo "Reports saved to /reports/{{ data_interval_start.year }}/{{ '%02d' % data_interval_start.month }}/"
         ''',
     )
 

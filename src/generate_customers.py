@@ -84,7 +84,8 @@ class CustomerGenerator:
             conn.close()
 
         if not branches:
-            branches = ['MKT001', 'CEB001', 'DVO001', '']
+            branches = ['MKT001', 'MKT002', 'MKT003', 'MKT004', 'MKT005', 'MKT006', 'MKT007', 'CEB001', 'CEB002', 'CEB003', 'CEB004', 'CEB005', 'DVO001', 'DVO002', 'DVO003', 'DVO004', 'CDO001',
+                        'CDO002', 'CDO003', 'ILO001', 'ILO002', 'ILO003', 'LEG001', 'LEG002', 'PUA001', 'PUA002', 'TUG001', 'TUG002', 'BAG001', 'VIG001', 'TAC001', 'ORM001', 'LEZ001', 'SAM001', 'PAG001', 'ZAM001']
 
         # Generate PEP customers
         for i in range(pep_count):
