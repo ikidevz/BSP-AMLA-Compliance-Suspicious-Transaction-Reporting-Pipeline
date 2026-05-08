@@ -3,6 +3,7 @@ logs/
 __pycache__/
 .env
 scripts/
+reports/
 
 dags/src/
 dbt/target/
