@@ -10,19 +10,19 @@ SELECT
     customer_sk,
     customer_id,
     CASE
-        WHEN current_user = 'metabase_ro' AND customer_name IS NOT NULL
+        WHEN current_user = 'metabase_amlc_user' AND customer_name IS NOT NULL
         THEN SUBSTRING(customer_name, 1, 1) || '***' || SUBSTRING(customer_name, LENGTH(customer_name), 1)
         ELSE customer_name
     END AS customer_name,
     customer_type,
     customer_segment,
     CASE
-        WHEN current_user = 'metabase_ro' AND sss_number IS NOT NULL
+        WHEN current_user = 'metabase_amlc_user' AND sss_number IS NOT NULL
         THEN '***' || RIGHT(sss_number, 4)
         ELSE sss_number
     END AS sss_number,
     CASE
-        WHEN current_user = 'metabase_ro' AND tin_number IS NOT NULL
+        WHEN current_user = 'metabase_amlc_user' AND tin_number IS NOT NULL
         THEN '***' || RIGHT(tin_number, 4)
         ELSE tin_number
     END AS tin_number,

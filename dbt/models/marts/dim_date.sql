@@ -23,7 +23,7 @@ WITH date_spine AS (
 ph_holidays AS (
     -- Materialise holiday list once to avoid repeated subquery scans
     SELECT calendar_date AS holiday_date
-    FROM {{ source('seeds', 'ph_non_working_days') }}
+    FROM {{ ref('ph_non_working_days') }}
 ),
 
 calendar AS (

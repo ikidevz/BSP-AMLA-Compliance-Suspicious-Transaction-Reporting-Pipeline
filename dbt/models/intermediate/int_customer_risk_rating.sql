@@ -32,7 +32,7 @@ watchlist_hits AS (
 
 -- Risk weights from seeds
 risk_weights AS (
-    SELECT * FROM {{ source('seeds', 'aml_risk_weights') }}
+    SELECT * FROM {{ ref('aml_risk_weights') }}
 ),
 
 -- Calculate composite risk score

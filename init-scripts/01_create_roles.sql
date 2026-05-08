@@ -1,7 +1,6 @@
 -- init-scripts/01_create_roles.sql
 -- Create PostgreSQL roles for BSP/AMLA compliance pipeline
 -- Principle of least privilege per RA 10173 data governance
--- NOTE: Moved before 02_create_schemas.sql — schemas depend on these roles
 
 -- Roles are global to PostgreSQL instance, no need to connect to specific database
 
@@ -56,6 +55,12 @@ BEGIN
     END IF;
 END
 $$;
+
+GRANT CONNECT ON DATABASE aml_compliance_db TO aml_pipeline;
+GRANT CONNECT ON DATABASE aml_compliance_db TO airflow_amlc_user;
+GRANT CONNECT ON DATABASE airflow_db TO airflow_amlc_user;
+GRANT CONNECT ON DATABASE metabase_db TO metabase_amlc_user;
+GRANT CONNECT ON DATABASE aml_compliance_db TO audit_logger;
 
 -- search_path assignments (ALTER ROLE is idempotent natively)
 ALTER ROLE aml_pipeline  SET search_path = staging, bronze, silver, gold, public;

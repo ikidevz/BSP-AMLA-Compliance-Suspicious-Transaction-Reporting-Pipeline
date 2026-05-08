@@ -17,7 +17,7 @@ WITH branches AS (
         region_name,
         city_municipality,
         province
-    FROM {{ source('seeds', 'ph_branches') }}
+    FROM {{ ref('ph_branches') }}
 ),
 
 final AS (

@@ -51,7 +51,6 @@ x-airflow-common: &airflow-common
   build:
     context: .
     dockerfile: Dockerfile.airflow
-  # build: .
   env_file:
     - ${ENV_FILE_PATH:-.env}
   environment: &airflow-common-env

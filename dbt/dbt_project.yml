@@ -62,7 +62,7 @@ models:
     staging:
       +materialized: table
       +schema: bronze
-      +pre-hook: '{{ run_query("SET search_path TO bronze, public") }}'
+      +pre-hook: "SET search_path TO staging, bronze, public"
       stg_transactions:
         +description: "Validated and cast raw transactions"
         +tags: ["staging"]
@@ -80,7 +80,7 @@ models:
     intermediate:
       +materialized: table
       +schema: silver
-      +pre-hook: '{{ run_query("SET search_path TO silver, public") }}'
+      +pre-hook: "SET search_path TO silver, bronze, public"
       int_ctr_candidates:
         +description: "CTR-eligible transactions (PHP 500k+ threshold)"
         +tags: ["intermediate"]
@@ -104,7 +104,7 @@ models:
     marts:
       +materialized: table
       +schema: gold
-      +pre-hook: '{{ run_query("SET search_path TO gold, public") }}'
+      +pre-hook: "SET search_path TO gold, silver, bronze, public"
 
       # Fact tables
       fct_covered_transactions:

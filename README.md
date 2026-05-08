@@ -366,7 +366,7 @@ All customer PII masked in `gold.dim_customers`:
 
 PostgreSQL RLS policies (init-script `06_row_level_security.sql`):
 
-- `metabase_ro`: Sees only gold schema (masked data)
+- `metabase_amlc_user`: Sees only gold schema (masked data)
 - `audit_logger`: Can only INSERT audit logs
 - Auditors: Can view all layers with explicit role grants
 

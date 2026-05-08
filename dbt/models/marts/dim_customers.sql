@@ -30,7 +30,7 @@ scd_customers AS (
         c.customer_id,
 
         -- PII masking per RA 10173
-        -- Masked in this dim; use vw_dim_customers_masked for metabase_ro
+        -- Masked in this dim; use vw_dim_customers_masked for metabase_amlc_user
         CASE
             WHEN c.customer_name IS NOT NULL
             THEN SUBSTRING(c.customer_name, 1, 1)

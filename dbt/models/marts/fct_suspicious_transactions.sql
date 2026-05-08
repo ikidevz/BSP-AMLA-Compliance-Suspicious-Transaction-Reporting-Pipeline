@@ -25,7 +25,7 @@ transactions AS (
 ),
 
 str_indicators AS (
-    SELECT * FROM {{ source('seeds', 'str_indicators_ref') }}
+    SELECT * FROM {{ ref('str_indicators_ref') }}
 ),
 
 -- Pre-compute the 5-PH-working-day deadline once per candidate

@@ -19,7 +19,7 @@
             EXTRACT(DOW FROM cal_date) NOT IN (0, 6)  -- exclude weekends
             AND cal_date NOT IN (
                 SELECT calendar_date
-                FROM {{ source('seeds', 'ph_non_working_days') }}
+                FROM {{ ref('ph_non_working_days') }}
             )
     )
     SELECT cal_date

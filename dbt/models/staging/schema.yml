@@ -22,7 +22,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["DEBIT", "CREDIT"]
+              arguments:
+                values: ["DEBIT", "CREDIT"]
       - name: txn_type
         description: Type of transaction
         tests:
@@ -60,14 +61,15 @@ models:
         description: Type of customer (INDIVIDUAL, CORPORATE, SOLEPROPRIETOR, NGO)
         tests:
           - accepted_values:
-              values:
-                [
-                  "INDIVIDUAL",
-                  "CORPORATE",
-                  "SOLEPROPRIETOR",
-                  "NGO",
-                  "GOVERNMENT",
-                ]
+              arguments:
+                values:
+                  [
+                    "INDIVIDUAL",
+                    "CORPORATE",
+                    "SOLEPROPRIETOR",
+                    "NGO",
+                    "GOVERNMENT",
+                  ]
       - name: sss_number
         description: Social Security System number - full PII
       - name: tin_number
@@ -86,12 +88,14 @@ models:
         description: Customer AML risk tier (LOW, MEDIUM, HIGH)
         tests:
           - accepted_values:
-              values: ["LOW", "MEDIUM", "HIGH"]
+              arguments:
+                values: ["LOW", "MEDIUM", "HIGH"]
       - name: account_status
         description: Current account status
         tests:
           - accepted_values:
-              values: ["ACTIVE", "DORMANT", "CLOSED", "RESTRICTED", "FROZEN"]
+              arguments:
+                values: ["ACTIVE", "DORMANT", "CLOSED", "RESTRICTED", "FROZEN"]
       - name: account_opened_date
         description: Date customer account was opened
         tests:
@@ -117,16 +121,17 @@ models:
         description: Type of ID document
         tests:
           - accepted_values:
-              values:
-                [
-                  "PASSPORT",
-                  "NATIONAL_ID",
-                  "DRIVERS_LICENSE",
-                  "POSTAL_ID",
-                  "SENIOR_CITIZEN_ID",
-                  "PWD_ID",
-                  "BIRTH_CERTIFICATE",
-                ]
+              arguments:
+                values:
+                  [
+                    "PASSPORT",
+                    "NATIONAL_ID",
+                    "DRIVERS_LICENSE",
+                    "POSTAL_ID",
+                    "SENIOR_CITIZEN_ID",
+                    "PWD_ID",
+                    "BIRTH_CERTIFICATE",
+                  ]
       - name: document_number
         description: Document identification number - masked PII
       - name: issue_date
@@ -166,31 +171,34 @@ models:
         description: Source of watchlist
         tests:
           - accepted_values:
-              values:
-                [
-                  "AMLC_LIST",
-                  "UN_SANCTIONS",
-                  "OFAC_SDN",
-                  "EU_CONSOLIDATED_LIST",
-                  "INTERNAL_BLACKLIST",
-                ]
+              arguments:
+                values:
+                  [
+                    "AMLC_LIST",
+                    "UN_SANCTIONS",
+                    "OFAC_SDN",
+                    "EU_CONSOLIDATED_LIST",
+                    "INTERNAL_BLACKLIST",
+                  ]
       - name: match_status
         description: Result of watchlist match
         tests:
           - accepted_values:
-              values:
-                [
-                  "NO_MATCH",
-                  "POSSIBLE_MATCH",
-                  "CONFIRMED_MATCH",
-                  "FALSE_POSITIVE",
-                ]
+              arguments:
+                values:
+                  [
+                    "NO_MATCH",
+                    "POSSIBLE_MATCH",
+                    "CONFIRMED_MATCH",
+                    "FALSE_POSITIVE",
+                  ]
       - name: matched_name
         description: Name from watchlist that matched
       - name: match_confidence_pct
         description: Confidence percentage of match (0-100)
         tests:
           - accepted_values:
-              values: ["0-25", "26-50", "51-75", "76-100"]
+              arguments:
+                values: ["0-25", "26-50", "51-75", "76-100"]
       - name: dbt_loaded_at
         description: dbt load timestamp
