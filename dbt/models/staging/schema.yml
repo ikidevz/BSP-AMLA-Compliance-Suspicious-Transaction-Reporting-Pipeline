@@ -17,17 +17,21 @@ models:
         description: Transaction date in Philippine timezone
         tests:
           - not_null
-      - name: txn_amount_php
-        description: Transaction amount in PHP
+      - name: amount_php
+        description: Amount converted to PHP equivalent for CTR threshold
         tests:
           - not_null
-          - accepted_values:
-              arguments:
-                values: ["DEBIT", "CREDIT"]
+
       - name: txn_type
         description: Type of transaction
         tests:
           - not_null
+      - name: transaction_direction   
+        description: Direction of transaction
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["DEBIT", "CREDIT"]
       - name: txn_channel
         description: Channel through which transaction was conducted
       - name: counterparty_name
@@ -197,8 +201,9 @@ models:
       - name: match_confidence_pct
         description: Confidence percentage of match (0-100)
         tests:
-          - accepted_values:
-              arguments:
-                values: ["0-25", "26-50", "51-75", "76-100"]
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+            - name: dbt_loaded_at
       - name: dbt_loaded_at
         description: dbt load timestamp
