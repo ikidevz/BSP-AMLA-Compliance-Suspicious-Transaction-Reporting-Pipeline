@@ -4,7 +4,8 @@
 -- Purpose: Silver layer - STR determination with filing deadlines
 
 {{ config(
-    materialized='table',
+    materialized='incremental',
+    unique_key='str_candidate_id',
     schema='silver',
     indexes=[
         {'columns': ['customer_id']},
@@ -122,38 +123,44 @@ signal_aggregation AS (
         branch_code,
         txn_date_ph,
         ARRAY_AGG(DISTINCT indicator_code) FILTER (WHERE indicator_code IS NOT NULL) AS str_indicators,
-        COUNT(DISTINCT indicator_code) AS indicator_count,
-        MAX(signal_risk_score) AS max_risk_score,
-        STRING_AGG(DISTINCT signal_detail, '; ') FILTER (WHERE signal_detail IS NOT NULL) AS signal_details,
-        CURRENT_TIMESTAMP AS str_determination_ts
+        COUNT(DISTINCT indicator_code)                                                AS indicator_count,
+        MAX(signal_risk_score)                                                        AS max_risk_score,
+        STRING_AGG(DISTINCT signal_detail, '; ') FILTER (WHERE signal_detail IS NOT NULL) AS signal_details
     FROM all_signals
     GROUP BY customer_id, txn_id, branch_code, txn_date_ph
+),
+
+-- Generate surrogate keys for new candidates so we can filter
+-- against the existing incremental table below
+new_candidates AS (
+    SELECT
+        {{ dbt_utils.generate_surrogate_key(['customer_id', 'txn_id']) }} AS str_candidate_id,
+        txn_id,
+        customer_id,
+        branch_code,
+        txn_date_ph,
+        str_indicators,
+        indicator_count,
+        max_risk_score,
+        signal_details,
+        -- str_determination_ts is set ONCE here and never overwritten on
+        -- subsequent incremental runs — this is what makes the countdown work
+        CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Manila'                      AS str_determination_ts,
+        CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Manila'                      AS str_determination_date,
+        CASE
+            WHEN indicator_count >= 3 THEN 'HIGH'
+            WHEN indicator_count >= 2 THEN 'MEDIUM'
+            ELSE 'LOW'
+        END                                                                AS str_confidence_level,
+        CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Manila'                      AS dbt_loaded_at
+    FROM signal_aggregation
 )
 
-SELECT
-    {{ dbt_utils.generate_surrogate_key(['customer_id', 'txn_id']) }} AS str_candidate_id,
-    txn_id,
-    customer_id,
-    branch_code,
-    txn_date_ph,
-    str_indicators,
-    indicator_count,
-    max_risk_score,
-    signal_details,
-    str_determination_ts,
-    
-    -- STR Filing deadline per RA 9160: 5 Philippine working days from determination
-    -- Will be calculated using dbt macro in downstream mart model
-    str_determination_ts AS str_determination_date,
-    
-    CASE
-        WHEN indicator_count >= 3 THEN 'HIGH'
-        WHEN indicator_count >= 2 THEN 'MEDIUM'
-        ELSE 'LOW'
-    END AS str_confidence_level,
-    
-    CURRENT_TIMESTAMP::TIMESTAMP WITH TIME ZONE AS dbt_loaded_at
+SELECT *
+FROM new_candidates
 
-FROM signal_aggregation
+{% if is_incremental() %}
+WHERE str_candidate_id NOT IN (SELECT str_candidate_id FROM {{ this }})
+{% endif %}
 
 ORDER BY str_determination_ts DESC, txn_id

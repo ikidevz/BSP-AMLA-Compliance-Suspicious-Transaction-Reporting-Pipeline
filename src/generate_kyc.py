@@ -1,8 +1,8 @@
 # dags/src/generate_kyc.py
 # Synthetic KYC document data generation
 
-import os
 import logging
+import random
 from typing import List, Dict
 from uuid import uuid4
 from datetime import datetime, timedelta
@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from faker import Faker
-import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -23,7 +22,7 @@ class KYCGenerator:
         self.db_config = db_config
         self.fake = Faker('en_PH')
         Faker.seed(seed)
-        np.random.seed(seed)
+        random.seed(seed)
 
     def connect_db(self):
         """Connect to PostgreSQL"""
@@ -54,12 +53,12 @@ class KYCGenerator:
             customer_id = customer['customer_id']
 
             # Most customers have 2-3 documents
-            num_docs = np.random.randint(2, 4)
-            selected_doc_types = np.random.choice(
-                doc_types, num_docs, replace=False)
+            # random.sample() replaces np.random.choice(replace=False)
+            num_docs = random.randint(2, 3)
+            selected_doc_types = random.sample(doc_types, num_docs)
 
             for doc_type in selected_doc_types:
-                issue_date = datetime.now() - timedelta(days=np.random.randint(180, 1825))
+                issue_date = datetime.now() - timedelta(days=random.randint(180, 1825))
 
                 # Expiry varies by document type
                 if doc_type == 'PASSPORT':
@@ -72,8 +71,8 @@ class KYCGenerator:
                 expiry_date = issue_date + timedelta(days=expiry_years * 365)
 
                 # 15% of documents are expired
-                if np.random.random() < 0.15:
-                    expiry_date = datetime.now() - timedelta(days=np.random.randint(1, 365))
+                if random.random() < 0.15:
+                    expiry_date = datetime.now() - timedelta(days=random.randint(1, 365))
 
                 doc = {
                     'document_id': str(uuid4()),
@@ -81,9 +80,9 @@ class KYCGenerator:
                     'document_type': doc_type,
                     'document_number': self.fake.uuid4()[:10].upper(),
                     'issue_date': issue_date.date(),
-                    'expiry_date': expiry_date.date() if np.random.random() > 0.05 else None,
+                    'expiry_date': expiry_date.date() if random.random() > 0.05 else None,
                     'issuing_country': 'PH',
-                    'issuing_authority': f"PSA" if doc_type == 'NATIONAL_ID' else f"LTO" if doc_type == 'DRIVERS_LICENSE' else 'DFA',
+                    'issuing_authority': 'PSA' if doc_type == 'NATIONAL_ID' else 'LTO' if doc_type == 'DRIVERS_LICENSE' else 'DFA',
                 }
                 documents.append(doc)
 

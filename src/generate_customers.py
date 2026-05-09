@@ -2,8 +2,8 @@
 # Synthetic customer data generation for BSP/AMLA compliance pipeline
 # Generates realistic customer profiles with valid Philippine ID formats
 
-import os
 import logging
+import random
 from typing import List, Dict
 from uuid import uuid4
 from datetime import datetime, timedelta
@@ -11,7 +11,6 @@ from datetime import datetime, timedelta
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from faker import Faker
-import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,7 +23,7 @@ class CustomerGenerator:
         self.db_config = db_config
         self.fake = Faker('en_PH')
         Faker.seed(seed)
-        np.random.seed(seed)
+        random.seed(seed)
 
     def connect_db(self):
         """Connect to PostgreSQL"""
@@ -38,19 +37,19 @@ class CustomerGenerator:
 
     def generate_sss_number(self) -> str:
         """Generate valid SSS number format: XX-XXXXXXX-X"""
-        part1 = f"{np.random.randint(10, 99)}"
-        part2 = f"{np.random.randint(1000000, 9999999)}"
-        part3 = f"{np.random.randint(1, 9)}"
+        part1 = f"{random.randint(10, 99)}"
+        part2 = f"{random.randint(1000000, 9999999)}"
+        part3 = f"{random.randint(1, 9)}"
         return f"{part1}-{part2}-{part3}"
 
     def generate_tin_number(self) -> str:
         """Generate valid TIN format: XXX-XXX-XXX-XXX"""
-        parts = [f"{np.random.randint(100, 999)}" for _ in range(4)]
+        parts = [f"{random.randint(100, 999)}" for _ in range(4)]
         return "-".join(parts)
 
     def generate_philhealth_id(self) -> str:
         """Generate PhilHealth ID: 12 digit number"""
-        return ''.join([str(np.random.randint(0, 9)) for _ in range(12)])
+        return ''.join([str(random.randint(0, 9)) for _ in range(12)])
 
     def generate_customers(self, volume: int = 500, pep_ratio: float = 0.05) -> List[Dict]:
         """
@@ -84,23 +83,27 @@ class CustomerGenerator:
             conn.close()
 
         if not branches:
-            branches = ['MKT001', 'MKT002', 'MKT003', 'MKT004', 'MKT005', 'MKT006', 'MKT007', 'CEB001', 'CEB002', 'CEB003', 'CEB004', 'CEB005', 'DVO001', 'DVO002', 'DVO003', 'DVO004', 'CDO001',
-                        'CDO002', 'CDO003', 'ILO001', 'ILO002', 'ILO003', 'LEG001', 'LEG002', 'PUA001', 'PUA002', 'TUG001', 'TUG002', 'BAG001', 'VIG001', 'TAC001', 'ORM001', 'LEZ001', 'SAM001', 'PAG001', 'ZAM001']
+            branches = [
+                'MKT001', 'MKT002', 'MKT003', 'MKT004', 'MKT005', 'MKT006', 'MKT007',
+                'CEB001', 'CEB002', 'CEB003', 'CEB004', 'CEB005',
+                'DVO001', 'DVO002', 'DVO003', 'DVO004',
+                'CDO001', 'CDO002', 'CDO003',
+                'ILO001', 'ILO002', 'ILO003',
+                'LEG001', 'LEG002', 'PUA001', 'PUA002',
+                'TUG001', 'TUG002', 'BAG001', 'VIG001',
+                'TAC001', 'ORM001', 'LEZ001', 'SAM001', 'PAG001', 'ZAM001',
+            ]
 
         # Generate PEP customers
         for i in range(pep_count):
             cust = self._create_customer(
-                branches[i % len(branches)],
-                is_pep=True
-            )
+                branches[i % len(branches)], is_pep=True)
             customers.append(cust)
 
         # Generate regular customers
         for i in range(volume - pep_count):
             cust = self._create_customer(
-                branches[i % len(branches)],
-                is_pep=False
-            )
+                branches[i % len(branches)], is_pep=False)
             customers.append(cust)
 
         logger.info(f"Generated {len(customers)} customers")
@@ -108,19 +111,36 @@ class CustomerGenerator:
 
     def _create_customer(self, branch_code: str, is_pep: bool = False) -> Dict:
         """Create a single customer record"""
-        customer_type = np.random.choice(
-            ['INDIVIDUAL', 'CORPORATE', 'SOLEPROPRIETOR', 'NGO'],
-            p=[0.70, 0.15, 0.10, 0.05]
-        )
 
-        # Risk tier - more diverse for realistic distribution
+        # [0] unpacks the list that random.choices() always returns
+        customer_type = random.choices(
+            ['INDIVIDUAL', 'CORPORATE', 'SOLEPROPRIETOR', 'NGO'],
+            weights=[0.70, 0.15, 0.10, 0.05],
+            k=1
+        )[0]
+
         if is_pep:
             risk_tier = 'HIGH'
         else:
-            risk_tier = np.random.choice(
-                ['LOW', 'MEDIUM', 'HIGH'], p=[0.60, 0.30, 0.10])
+            risk_tier = random.choices(
+                ['LOW', 'MEDIUM', 'HIGH'],
+                weights=[0.60, 0.30, 0.10],
+                k=1
+            )[0]
 
-        account_opened_date = datetime.now() - timedelta(days=np.random.randint(365, 1825))
+        account_status = random.choices(
+            ['ACTIVE', 'DORMANT', 'RESTRICTED'],
+            weights=[0.90, 0.08, 0.02],
+            k=1
+        )[0]
+
+        customer_segment = random.choices(
+            ['RETAIL', 'SME', 'CORPORATE'],
+            weights=[0.60, 0.30, 0.10],
+            k=1
+        )[0]
+
+        account_opened_date = datetime.now() - timedelta(days=random.randint(365, 1825))
 
         return {
             'customer_id': f"CUST{str(uuid4())[:12].upper()}",
@@ -134,12 +154,12 @@ class CustomerGenerator:
             'is_pep': is_pep,
             'pep_determination_date': datetime.now().date() if is_pep else None,
             'risk_tier': risk_tier,
-            'account_status': np.random.choice(['ACTIVE', 'DORMANT', 'RESTRICTED'], p=[0.90, 0.08, 0.02]),
+            'account_status': account_status,
             'account_opened_date': account_opened_date.date(),
             'branch_code': branch_code,
-            'customer_segment': np.random.choice(['RETAIL', 'SME', 'CORPORATE'], p=[0.60, 0.30, 0.10]),
+            'customer_segment': customer_segment,
             'kyc_status': 'COMPLETE',
-            'kyc_last_update_date': (datetime.now() - timedelta(days=np.random.randint(1, 365))).date(),
+            'kyc_last_update_date': (datetime.now() - timedelta(days=random.randint(1, 365))).date(),
         }
 
     def insert_customers(self, customers: List[Dict]) -> int:
