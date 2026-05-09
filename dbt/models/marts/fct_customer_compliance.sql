@@ -50,6 +50,7 @@ SELECT
     c.customer_type,
     c.customer_segment,
     c.branch_code,
+    c.nationality,
 
     CURRENT_DATE                                    AS snapshot_date,
 

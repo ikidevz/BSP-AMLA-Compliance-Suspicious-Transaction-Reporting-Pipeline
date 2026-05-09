@@ -115,7 +115,7 @@ default_args = {
     default_args=default_args,
     description='Monthly BSP/AMLC compliance report generation',
     schedule='0 6 1 * *',
-    start_date=pendulum.datetime(2025, 1, 1, tz='Asia/Manila'),
+    start_date=pendulum.datetime(2026, 5, 8, tz='UTC'),
     catchup=False,
     tags=['aml', 'compliance', 'bsp', 'reporting', 'monthly'],
 )
